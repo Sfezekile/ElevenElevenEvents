@@ -64,6 +64,18 @@
     transform: translateY(0);
 }
 
+.gallery-item:focus-within .gallery-image {
+    display: none;
+}
+
+.gallery-item:focus-within .gallery-video {
+    display: block;
+}
+
+.gallery-item:focus-within .gallery-overlay {
+    transform: translateY(0);
+}
+
 .gallery-overlay h3 {
     font-size: 1.4rem;
     margin-bottom: 0.8rem;
@@ -73,13 +85,4 @@
     font-size: 1rem;
     opacity: 0.9;
     line-height: 1.5;
-}
-
-.gallery-video {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.gallery-video.loaded {
-    opacity: 1;
 }
