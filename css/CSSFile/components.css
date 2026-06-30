@@ -239,7 +239,7 @@
 }
 
 .message.error {
-    background: 333333;
+    background: #333333;
     border: 1px solid hsl(0, 84%, 60%, 0.3);
     color: hsl(0, 84%, 60%);
 }
