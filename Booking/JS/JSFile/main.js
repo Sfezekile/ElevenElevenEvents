@@ -76,6 +76,12 @@ function initNavigation() {
 function initHeroSlideshow() {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
+
+    // The current hero design uses a single static image, not a slideshow.
+    // Bail out instead of running broken interval logic against an empty NodeList.
+    if (!slides.length) {
+        return;
+    }
     let currentSlide = 0;
     let slideInterval;
 
@@ -354,30 +360,40 @@ function initBookingModal() {
 // Contact form functionality
 function initContactForm() {
     const contactForm = document.getElementById('contact-form');
-    
+
+    // NOTE: uses the same EmailJS service as the booking form. If you have (or
+    // create) a dedicated EmailJS template for general contact messages whose
+    // variables match this form's fields (f_name, l_name, email, message),
+    // put its ID here. Otherwise this falls back to the booking template.
+    const CONTACT_TEMPLATE_ID = 'template_m0yin89';
+
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             // Get form data
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
-            
+
             // Show loading state
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
-            
-            // Simulate form submission
-            setTimeout(() => {
-                showMessage('Message sent! Thank you for reaching out. We\'ll get back to you soon.', 'success');
-                this.reset();
-                
-                // Reset button
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            }, 1500);
+
+            emailjs.send('service_q5op5eg', CONTACT_TEMPLATE_ID, data)
+                .then(() => {
+                    showMessage('Message sent! Thank you for reaching out. We\'ll get back to you soon.', 'success');
+                    this.reset();
+                })
+                .catch((error) => {
+                    console.error('EmailJS error:', error);
+                    showMessage('There was an error sending your message. Please try again or contact us directly.', 'error');
+                })
+                .finally(() => {
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                });
         });
     }
 }
@@ -432,12 +448,10 @@ function initMiscellaneous() {
 
     // Preload images for better performance
     const imageUrls = [
-        'Asset/Img/Melo\'s\ First\ Roar\ 1.jpg',
-        'Asset/Img/The\ Sunset\ Palms.jpg',
-        'Asset/Img/Tlami\ 2.jpg',
-        'src/assets/gallery-kids.jpg',
-        'src/assets/gallery-celebration.jpg',
-        'src/assets/gallery-cherry.jpg'
+        'Img/Graduation Dinner 1.jpg',
+        'Img/The Sunset Palms 2.jpg',
+        'Img/Baby Shower.jpg',
+        'Img/matric event.jpg'
     ];
 
     imageUrls.forEach(url => {
@@ -531,25 +545,6 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Lazy load videos when they enter the viewport
-document.addEventListener('DOMContentLoaded', function() {
-    const videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const video = entry.target;
-                video.src = video.getAttribute('data-src');
-                video.classList.add('loaded');
-                videoObserver.unobserve(video);
-            }
-        });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.gallery-video').forEach(video => {
-        // Store original source in data attribute
-        const source = video.querySelector('source');
-        video.setAttribute('data-src', source.src);
-        source.removeAttribute('src');
-        
-        videoObserver.observe(video);
-    });
-});
+// Note: gallery videos now lazy-load and play on hover/focus instead of as
+// soon as they scroll into view — see the hover-to-play logic in test.js,
+// which is lighter weight than preloading and autoplaying every video.
