@@ -311,7 +311,7 @@ button {
     flex-direction: column;
     cursor: pointer;
     font-size: 1.5rem;
-    color: var(--foreground);
+    color: var(--background);
 }
 
 /* Hero Section */
