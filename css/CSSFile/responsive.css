@@ -38,6 +38,124 @@
     .footer-content {
         gap: 2rem;
     }
+
+    /* Hero Tablet (actual markup: .content / .hero-img / .hero-text) */
+    .hero {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100svh;
+    }
+
+    .hero .content {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        width: 90%;
+        margin-top: 0;
+        gap: 3rem;
+        padding: 7rem 0 3rem;
+    }
+
+    .hero-img img {
+        max-height: 45vh;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+
+    .hero-text {
+        text-align: center;
+        align-items: center;
+    }
+
+    .hero-text .headline h2 {
+        font-size: clamp(2.25rem, 7vw, 3.25rem);
+    }
+
+    .hero-text .headline span {
+        font-size: clamp(2rem, 6vw, 2.75rem);
+    }
+
+    .hero-text .headline p {
+        font-size: clamp(1.5rem, 4.5vw, 2rem);
+    }
+
+    .hero-text .par2 p {
+        font-size: clamp(1.5rem, 4vw, 2.25rem);
+    }
+
+    .hero-text .par2 span {
+        font-size: clamp(1.5rem, 3.5vw, 1.875rem);
+    }
+
+    .hero-text .cta {
+        justify-content: center;
+    }
+
+    .hero .down a {
+        position: static;
+        margin-top: 1.5rem;
+    }
+
+    /* About Tablet (actual markup: .about-me / .left / .right) */
+    .about-me {
+        grid-template-columns: 1fr;
+        grid:
+          "sidebar" auto
+          "body" auto
+          / 100%;
+        gap: 2rem;
+    }
+
+    .about-me .left img {
+        width: 28vh;
+        margin-bottom: 2rem;
+    }
+
+    .about-me .right {
+        align-items: center;
+        text-align: center;
+    }
+
+    .about-me .headline h2 {
+        font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+        text-align: center;
+    }
+
+    .about-me .para p {
+        text-align: center;
+    }
+
+    .about-me .cta {
+        justify-content: center;
+    }
+
+    /* Contact Tablet (actual markup: .contact-content grid + .left-img) */
+    .contact-content .right {
+        align-items: center;
+        text-align: center;
+    }
+
+    .contact-content .headline h2 {
+        text-align: center;
+    }
+
+    .contact-content .para p {
+        text-align: center;
+    }
+
+    .contact-content .cta {
+        justify-content: center;
+    }
+
+    /* Experience Tablet (actual markup: .experience-container / .item) */
+    .experience-container {
+        flex-direction: column;
+        gap: 2.5rem;
+        margin-top: 4rem;
+    }
+
+    .item {
+        margin-bottom: 0;
+    }
 }
 
 /* Mobile Styles */
@@ -72,6 +190,10 @@
         color: var(--foreground);
         font-size: 1.25rem;
         padding: 1rem 0;
+    }
+
+    .nav-menu .logo {
+        display: none;
     }
     
     .nav-toggle {
@@ -113,6 +235,55 @@
         bottom: 1rem;
     }
     
+    /* Hero Mobile (actual markup: .content / .hero-img / .hero-text) */
+    .hero {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100svh;
+    }
+
+    .hero .content {
+        width: 100%;
+        padding: 6.5rem 1.5rem 2.5rem;
+        gap: 2rem;
+    }
+
+    .hero-img img {
+        max-height: 35vh;
+        object-fit: cover;
+        border-radius: 0.5rem;
+    }
+
+    .par1 p {
+        font-size: 0.9rem;
+    }
+
+    .hero-text .headline h2 {
+        font-size: clamp(1.75rem, 9vw, 2.5rem);
+    }
+
+    .hero-text .headline span {
+        font-size: clamp(1.6rem, 8vw, 2.25rem);
+    }
+
+    .hero-text .headline p {
+        font-size: clamp(1.25rem, 6vw, 1.5rem);
+    }
+
+    .hero-text .par2 p {
+        font-size: clamp(1.25rem, 6vw, 1.75rem);
+        margin-bottom: 1.5rem;
+    }
+
+    .hero-text .par2 span {
+        font-size: clamp(1.1rem, 5vw, 1.5rem);
+    }
+
+    .hero-text .btn-booking {
+        white-space: normal;
+        text-align: center;
+    }
+    
     /* Sections Mobile */
     .section-title {
         font-size: clamp(1.75rem, 6vw, 2.25rem);
@@ -132,6 +303,16 @@
     
     .about-content {
         font-size: 1rem;
+    }
+
+    .about-me .left img {
+        width: 50vw;
+        max-width: 220px;
+        margin-bottom: 1.5rem;
+    }
+
+    .about-me .left h2 {
+        font-size: 1.1rem;
     }
     
     /* Gallery Mobile */
@@ -175,8 +356,17 @@
     
     /* Contact Mobile */
     .contact-content {
-        grid-template-columns: 1fr;
+        grid:
+          "sidebar" auto
+          "body" auto
+          / 100%;
         gap: 2rem;
+    }
+    
+    .left-img img {
+        width: 40vw;
+        max-width: 180px;
+        margin: 0 auto;
     }
     
     .contact-form {
@@ -186,6 +376,11 @@
     .form-row {
         grid-template-columns: 1fr;
         gap: 0;
+    }
+
+    .form-group.name {
+        flex-direction: column;
+        gap: 1rem;
     }
     
     /* Footer Mobile */
@@ -245,14 +440,31 @@
     
     .nav-logo .logo {
         height: 2.5rem;
+        display: none;
     }
     
+    .logo h3 {
+        font-size: 16px;
+    }
+
+    .logo p {
+        font-size: 12px;
+    }
+
     .hero-title {
         font-size: clamp(1.5rem, 9vw, 2rem);
     }
     
     .hero-subtitle {
         font-size: clamp(0.9rem, 4vw, 1rem);
+    }
+
+    .hero-img img {
+        max-height: 28vh;
+    }
+
+    .down a {
+        display: none;
     }
     
     .section-title {
