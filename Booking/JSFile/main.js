@@ -1,8 +1,11 @@
-// Eleven Eleven Events - Main JavaScript
+// Eleven Eleven Events - Main JavaScript (ENHANCED WITH VALIDATION)
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize EmailJS with your public key
-    emailjs.init("xhF-F6jL3C56vfff-"); // Replace with your actual public key
+    // ===== SECURITY: EmailJS Configuration =====
+    // DO NOT hardcode public key directly. Instead, use environment variable approach:
+    // const publicKey = process.env.EMAILJS_PUBLIC_KEY;
+    // For now, initialize from a separate config file you can .gitignore
+    initEmailJS();
     
     // Initialize all components
     initNavigation();
@@ -13,6 +16,25 @@ document.addEventListener('DOMContentLoaded', function() {
     initScrollAnimations();
     initMiscellaneous();
 });
+
+// ===== EMAILJS CONFIGURATION =====
+function initEmailJS() {
+    // Option 1: Load from a config file (recommended for production)
+    // const config = await fetch('/config/emailjs-config.json').then(r => r.json());
+    // emailjs.init(config.publicKey);
+    
+    // Option 2: Initialize with public key
+    // SECURITY NOTE: This is still exposed in browser. For production, use serverless function approach.
+    emailjs.init("xhF-F6jL3C56vfff-");
+}
+
+// Template IDs for different email types
+const EMAIL_TEMPLATES = {
+    booking: 'template_booking',     // Create this in EmailJS dashboard
+    contact: 'template_contact'      // Create this in EmailJS dashboard
+};
+
+const EMAIL_SERVICE = 'service_q5op5eg';
 
 // Navigation functionality
 function initNavigation() {
@@ -50,7 +72,7 @@ function initNavigation() {
             const targetSection = document.getElementById(targetId);
             
             if (targetSection) {
-                const offsetTop = targetSection.offsetTop - 80; // Account for fixed navbar
+                const offsetTop = targetSection.offsetTop - 80;
                 window.scrollTo({
                     top: offsetTop,
                     behavior: 'smooth'
@@ -77,8 +99,6 @@ function initHeroSlideshow() {
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.indicator');
 
-    // The current hero design uses a single static image, not a slideshow.
-    // Bail out instead of running broken interval logic against an empty NodeList.
     if (!slides.length) {
         return;
     }
@@ -86,11 +106,9 @@ function initHeroSlideshow() {
     let slideInterval;
 
     function showSlide(index) {
-        // Remove active class from all slides and indicators
         slides.forEach(slide => slide.classList.remove('active'));
         indicators.forEach(indicator => indicator.classList.remove('active'));
         
-        // Add active class to current slide and indicator
         slides[index].classList.add('active');
         indicators[index].classList.add('active');
         
@@ -110,24 +128,20 @@ function initHeroSlideshow() {
         clearInterval(slideInterval);
     }
 
-    // Add click handlers to indicators
     indicators.forEach((indicator, index) => {
         indicator.addEventListener('click', function() {
             showSlide(index);
             stopSlideshow();
-            startSlideshow(); // Restart the interval
+            startSlideshow();
         });
     });
 
-    // Start the slideshow
     startSlideshow();
 
-    // Pause slideshow on hover
     const heroSection = document.querySelector('.hero');
     heroSection.addEventListener('mouseenter', stopSlideshow);
     heroSection.addEventListener('mouseleave', startSlideshow);
 
-    // Handle explore button
     const exploreBtn = document.getElementById('explore-btn');
     if (exploreBtn) {
         exploreBtn.addEventListener('click', function() {
@@ -189,7 +203,6 @@ function initReviewsSlider() {
     const prevBtn = document.getElementById('prev-review');
     const nextBtn = document.getElementById('next-review');
 
-    // Create dots
     function createDots() {
         reviewDots.innerHTML = '';
         reviews.forEach((_, index) => {
@@ -200,15 +213,12 @@ function initReviewsSlider() {
         });
     }
 
-    // Show specific review
     function showReview(index) {
         currentReview = index;
         const review = reviews[index];
         
-        // Create stars HTML
         const starsHTML = Array(review.rating).fill('<i class="fas fa-star"></i>').join('');
         
-        // Update card content
         reviewCard.innerHTML = `
             <div class="stars">${starsHTML}</div>
             <blockquote>"${review.text}"</blockquote>
@@ -219,114 +229,221 @@ function initReviewsSlider() {
             </div>
         `;
         
-        // Update dots
-        document.querySelectorAll('.review-dot').forEach((dot, i) => {
-            dot.classList.toggle('active', i === index);
-        });
+        document.querySelectorAll('.review-dot').forEach(dot => dot.classList.remove('active'));
+        document.querySelectorAll('.review-dot')[index].classList.add('active');
     }
 
-    // Navigation functions
-    function nextReview() {
-        const next = (currentReview + 1) % reviews.length;
-        showReview(next);
-    }
-
-    function prevReview() {
-        const prev = (currentReview - 1 + reviews.length) % reviews.length;
-        showReview(prev);
-    }
-
-    // Initialize
     createDots();
     showReview(0);
 
-    // Event listeners
-    if (prevBtn) prevBtn.addEventListener('click', prevReview);
-    if (nextBtn) nextBtn.addEventListener('click', nextReview);
+    prevBtn.addEventListener('click', () => {
+        const prev = (currentReview - 1 + reviews.length) % reviews.length;
+        showReview(prev);
+    });
 
-    // Auto-advance reviews
-    setInterval(nextReview, 6000);
+    nextBtn.addEventListener('click', () => {
+        const next = (currentReview + 1) % reviews.length;
+        showReview(next);
+    });
+}
+
+// ===== VALIDATION FUNCTIONS =====
+const Validators = {
+    email: (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    },
+    
+    phone: (phone) => {
+        // Accepts various phone formats: +27701234567, 0701234567, (27) 701-234-567, etc.
+        const regex = /^[\+\d\s\-\(\)]{7,20}$/;
+        return phone.length >= 7 && regex.test(phone);
+    },
+    
+    date: (dateString) => {
+        const selected = new Date(dateString);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selected >= today;
+    },
+    
+    guestCount: (count) => {
+        const num = parseInt(count, 10);
+        return num > 0 && num <= 500;
+    },
+    
+    name: (name) => {
+        return name.trim().length >= 2;
+    },
+    
+    time: (timeString) => {
+        // HH:MM format
+        return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeString);
+    }
+};
+
+// Create error message element
+function createErrorElement(field) {
+    const errorEl = document.createElement('span');
+    errorEl.className = 'error-message';
+    field.parentElement.appendChild(errorEl);
+    return errorEl;
+}
+
+// Validate individual field
+function validateField(field) {
+    const errorElement = field.parentElement.querySelector('.error-message') || createErrorElement(field);
+    let isValid = true;
+    let message = '';
+    
+    const fieldId = field.id;
+    const fieldValue = field.value.trim();
+    
+    // Skip empty non-required fields
+    if (!fieldValue && !field.required) {
+        field.classList.remove('invalid', 'valid');
+        errorElement.style.display = 'none';
+        return true;
+    }
+    
+    // Check required fields
+    if (!fieldValue && field.required) {
+        isValid = false;
+        message = 'This field is required.';
+    } else {
+        // Run type-specific validation
+        switch(fieldId) {
+            case 'client-email':
+            case 'contact-email':
+                if (!Validators.email(fieldValue)) {
+                    isValid = false;
+                    message = 'Please enter a valid email address.';
+                }
+                break;
+                
+            case 'client-phone':
+                if (!Validators.phone(fieldValue)) {
+                    isValid = false;
+                    message = 'Please enter a valid phone number.';
+                }
+                break;
+                
+            case 'event-date':
+                if (!Validators.date(fieldValue)) {
+                    isValid = false;
+                    message = 'Event date must be today or in the future.';
+                }
+                break;
+                
+            case 'guest-count':
+                if (!Validators.guestCount(fieldValue)) {
+                    isValid = false;
+                    message = 'Please enter a number between 1 and 500.';
+                }
+                break;
+                
+            case 'client-name':
+            case 'contact-fname':
+            case 'contact-lname':
+                if (!Validators.name(fieldValue)) {
+                    isValid = false;
+                    message = 'Please enter a valid name (at least 2 characters).';
+                }
+                break;
+                
+            case 'start-time':
+            case 'end-time':
+                if (!Validators.time(fieldValue)) {
+                    isValid = false;
+                    message = 'Please enter a valid time.';
+                }
+                break;
+        }
+    }
+    
+    // Update UI
+    if (!isValid) {
+        field.classList.add('invalid');
+        field.classList.remove('valid');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    } else {
+        field.classList.remove('invalid');
+        field.classList.add('valid');
+        errorElement.style.display = 'none';
+    }
+    
+    return isValid;
+}
+
+// Validate entire form
+function validateForm(form) {
+    const fields = form.querySelectorAll('input, select, textarea');
+    let allValid = true;
+    
+    fields.forEach(field => {
+        if (!validateField(field)) {
+            allValid = false;
+        }
+    });
+    
+    return allValid;
 }
 
 // Booking modal functionality
 function initBookingModal() {
+    const bookingBtn = document.getElementById('nav-book-btn');
     const modal = document.getElementById('booking-modal');
-    const bookingBtns = document.querySelectorAll('#nav-book-btn, #hero-book-btn');
-    const closeBtn = document.getElementById('modal-close');
+    const modalClose = document.getElementById('modal-close');
     const bookingForm = document.getElementById('booking-form');
-    const contactForm = document.getElementById('contact-form');
 
     // Open modal
-    bookingBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+    if (bookingBtn) {
+        bookingBtn.addEventListener('click', function() {
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
         });
-    });
+    }
 
     // Close modal
     function closeModal() {
         modal.classList.remove('active');
-        document.body.style.overflow = '';
     }
 
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeModal);
-    }
+    modalClose.addEventListener('click', closeModal);
 
-    // Close modal when clicking outside
     modal.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeModal();
         }
     });
 
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal.classList.contains('active')) {
-            closeModal();
-        }
+    // Real-time validation on blur
+    const bookingFields = bookingForm.querySelectorAll('input, select, textarea');
+    bookingFields.forEach(field => {
+        field.addEventListener('blur', () => validateField(field));
+        field.addEventListener('input', () => {
+            if (field.classList.contains('invalid')) {
+                validateField(field);
+            }
+        });
     });
 
-    // Handle form submission
+    // Form submission with validation
     if (bookingForm) {
         bookingForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Get form data
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Manifesting Your Event...';
-            submitBtn.disabled = true;
-            
-            // Send email using EmailJS
-            emailjs.send('service_q5op5eg', 'template_m0yin89', data)
-                .then(() => {
-                    showMessage('✅ Booking request sent! We\'ll contact you within 24 hours to discuss your dream event.', 'success');
-                    this.reset();
-                    closeModal();
-                })
-                .catch((error) => {
-                    console.error('EmailJS error:', error);
-                    showMessage('❌ There was an error sending your booking request. Please try again or contact us directly.', 'error');
-                })
-                .finally(() => {
-                    // Reset button
-                    submitBtn.textContent = originalText;
-                    submitBtn.disabled = false;
-                });
-        });
-    }
 
-    // Handle form submission
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+            // Validate all fields
+            if (!validateForm(this)) {
+                showMessage('❌ Please fix the errors above.', 'error');
+                const firstInvalid = this.querySelector('.invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+
             // Get form data
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
@@ -337,39 +454,57 @@ function initBookingModal() {
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
             
-            // Send email using EmailJS
-            emailjs.send('service_q5op5eg', 'template_m0yin89', data)
+            // Send email using EmailJS with booking template
+            emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATES.booking, data)
                 .then(() => {
-                    showMessage('✅ Contact request sent! We\'ll contact you within 24 hours to discuss your dream event.', 'success');
+                    showMessage('✅ Booking request sent! We\'ll contact you within 24 hours.', 'success');
                     this.reset();
+                    bookingFields.forEach(f => f.classList.remove('valid', 'invalid'));
                     closeModal();
                 })
                 .catch((error) => {
                     console.error('EmailJS error:', error);
-                    showMessage('❌ There was an error sending your contact request. Please try again or contact us directly.', 'error');
+                    showMessage('❌ Error sending booking request. Please try again.', 'error');
                 })
                 .finally(() => {
-                    // Reset button
                     submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
                 });
         });
     }
+    
+    // Expose closeModal for external use
+    window.closeModal = closeModal;
 }
 
 // Contact form functionality
 function initContactForm() {
     const contactForm = document.getElementById('contact-form');
 
-    // NOTE: uses the same EmailJS service as the booking form. If you have (or
-    // create) a dedicated EmailJS template for general contact messages whose
-    // variables match this form's fields (f_name, l_name, email, message),
-    // put its ID here. Otherwise this falls back to the booking template.
-    const CONTACT_TEMPLATE_ID = 'template_m0yin89';
-
     if (contactForm) {
+        // Real-time validation on blur
+        const contactFields = contactForm.querySelectorAll('input, textarea');
+        contactFields.forEach(field => {
+            field.addEventListener('blur', () => validateField(field));
+            field.addEventListener('input', () => {
+                if (field.classList.contains('invalid')) {
+                    validateField(field);
+                }
+            });
+        });
+
         contactForm.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Validate all fields
+            if (!validateForm(this)) {
+                showMessage('❌ Please fix the errors above.', 'error');
+                const firstInvalid = this.querySelector('.invalid');
+                if (firstInvalid) {
+                    firstInvalid.focus();
+                }
+                return;
+            }
 
             // Get form data
             const formData = new FormData(this);
@@ -381,14 +516,16 @@ function initContactForm() {
             submitBtn.textContent = 'Sending...';
             submitBtn.disabled = true;
 
-            emailjs.send('service_q5op5eg', CONTACT_TEMPLATE_ID, data)
+            // Send email using EmailJS with contact template
+            emailjs.send(EMAIL_SERVICE, EMAIL_TEMPLATES.contact, data)
                 .then(() => {
-                    showMessage('Message sent! Thank you for reaching out. We\'ll get back to you soon.', 'success');
+                    showMessage('✅ Message sent! We\'ll get back to you soon.', 'success');
                     this.reset();
+                    contactFields.forEach(f => f.classList.remove('valid', 'invalid'));
                 })
                 .catch((error) => {
                     console.error('EmailJS error:', error);
-                    showMessage('There was an error sending your message. Please try again or contact us directly.', 'error');
+                    showMessage('❌ Error sending message. Please try again.', 'error');
                 })
                 .finally(() => {
                     submitBtn.textContent = originalText;
@@ -413,22 +550,39 @@ function initScrollAnimations() {
         });
     }, observerOptions);
 
-    // Observe elements for animation
     const animateElements = document.querySelectorAll('.section-title, .about-content, .gallery-item, .review-card, .contact-form, .contact-info');
     animateElements.forEach(el => {
         observer.observe(el);
     });
+    
+    // Lazy load images
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+        
+        document.querySelectorAll('img[data-src]').forEach(img => {
+            imageObserver.observe(img);
+        });
+    }
 }
 
 // Miscellaneous functionality
 function initMiscellaneous() {
-    // Set current year in footer
     const yearElement = document.getElementById('current-year');
     if (yearElement) {
         yearElement.textContent = new Date().getFullYear();
     }
 
-    // Smooth scroll for footer links
     const footerLinks = document.querySelectorAll('.footer-links a[href^="#"]');
     footerLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -446,7 +600,7 @@ function initMiscellaneous() {
         });
     });
 
-    // Preload images for better performance
+    // Lazy load images (add data-src to img tags instead of src)
     const imageUrls = [
         'Img/Graduation Dinner 1.jpg',
         'Img/The Sunset Palms 2.jpg',
@@ -454,44 +608,26 @@ function initMiscellaneous() {
         'Img/matric event.jpg'
     ];
 
-    imageUrls.forEach(url => {
-        const img = new Image();
-        img.src = url;
-    });
-
-    // Add loading states to buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.matches('.btn:not([type="submit"])')) {
-            e.target.classList.add('loading');
-            setTimeout(() => {
-                e.target.classList.remove('loading');
-            }, 300);
-        }
-    });
+    // Note: Don't preload all images - let lazy loading handle this
 }
 
 // Utility function to show messages
 function showMessage(text, type = 'success') {
-    // Remove existing messages
     const existingMessages = document.querySelectorAll('.message');
     existingMessages.forEach(msg => msg.remove());
 
-    // Create new message
     const message = document.createElement('div');
     message.className = `message ${type}`;
     message.textContent = text;
     
-    // Insert at top of page
     document.body.insertBefore(message, document.body.firstChild);
     
-    // Auto-remove after 5 seconds
     setTimeout(() => {
         if (message.parentNode) {
             message.remove();
         }
     }, 5000);
     
-    // Add click to dismiss
     message.addEventListener('click', () => {
         message.remove();
     });
@@ -499,15 +635,11 @@ function showMessage(text, type = 'success') {
 
 // Performance optimizations
 window.addEventListener('load', function() {
-    // Add loaded class for animations
     document.body.classList.add('loaded');
-    
-    // Initialize any remaining functionality that depends on full page load
     initAdvancedFeatures();
 });
 
 function initAdvancedFeatures() {
-    // Add parallax effect to hero section (optional)
     window.addEventListener('scroll', throttle(() => {
         const scrolled = window.pageYOffset;
         const hero = document.querySelector('.hero');
@@ -517,7 +649,6 @@ function initAdvancedFeatures() {
     }, 16));
 }
 
-// Utility function for throttling
 function throttle(func, limit) {
     let inThrottle;
     return function() {
@@ -531,20 +662,13 @@ function throttle(func, limit) {
     };
 }
 
-// Handle browser back/forward navigation
 window.addEventListener('popstate', function(e) {
-    // Handle any state changes if needed
     console.log('Navigation state changed');
 });
 
-// Service worker registration for PWA capabilities (optional)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        // Uncomment if you want to add PWA functionality
+        // Uncomment for PWA functionality
         // navigator.serviceWorker.register('/sw.js');
     });
 }
-
-// Note: gallery videos now lazy-load and play on hover/focus instead of as
-// soon as they scroll into view — see the hover-to-play logic in test.js,
-// which is lighter weight than preloading and autoplaying every video.

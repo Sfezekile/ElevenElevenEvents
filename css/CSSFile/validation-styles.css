@@ -1,0 +1,234 @@
+/* ===== FORM VALIDATION STYLES ===== */
+
+/* Valid field styling */
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.form-group input.valid::placeholder {
+    color: #4caf50;
+}
+
+/* Invalid field styling */
+.form-group input.invalid,
+.form-group select.invalid,
+.form-group textarea.invalid {
+    border-color: #f44336;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+.form-group input.invalid::placeholder {
+    color: #f44336;
+}
+
+/* Error message styling */
+.error-message {
+    display: none;
+    color: #f44336;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    animation: slideInErrorMsg 0.3s ease-out;
+}
+
+@keyframes slideInErrorMsg {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Success checkmark indicator */
+.form-group input.valid::after,
+.form-group select.valid::after,
+.form-group textarea.valid::after {
+    content: '✓';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4caf50;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Add position context for relative elements */
+.form-group {
+    position: relative;
+}
+
+/* Focus state for validation */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px hsla(15, 25%, 25%, 0.1);
+    transition: all 0.2s ease;
+}
+
+.form-group input.invalid:focus,
+.form-group select.invalid:focus,
+.form-group textarea.invalid:focus {
+    border-color: #f44336;
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1);
+}
+
+/* Submit button loading state */
+.btn-booking:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.btn-booking:disabled::after {
+    content: '';
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-left: 0.5em;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Floating label effect (optional enhancement) */
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--foreground);
+    transition: color 0.2s ease;
+}
+
+.form-group input.invalid ~ label,
+.form-group select.invalid ~ label,
+.form-group textarea.invalid ~ label {
+    color: #f44336;
+}
+
+.form-group input.valid ~ label,
+.form-group select.valid ~ label,
+.form-group textarea.valid ~ label {
+    color: #4caf50;
+}
+
+/* Form grid adjustments for better UX */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-row .form-group {
+    margin-top: 0;
+}
+
+/* Accessibility: Show focus outline on keyboard navigation */
+@media (prefers-reduced-motion: no-preference) {
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+}
+
+/* Mobile adjustments for form validation */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .error-message {
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+    }
+}
+
+/* ===== IMAGE LAZY LOADING ===== */
+
+img[data-src] {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+img[data-src].loaded {
+    opacity: 1;
+}
+
+/* Skeleton/placeholder effect for lazy-loaded images */
+img[data-src]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--muted) 25%,
+        var(--border) 50%,
+        var(--muted) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton 1.5s infinite;
+}
+
+@keyframes skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* ===== VIDEO PERFORMANCE =====  */
+video[poster] {
+    /* Show poster image until video loads */
+    background-color: var(--muted);
+    background-size: cover;
+    background-position: center;
+}
+
+.gallery-video {
+    /* Ensure videos don't exceed container */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== FONT OPTIMIZATION ===== */
+
+/* Already using &display=swap in Google Fonts link */
+/* But ensure custom fonts also use font-display */
+
+@font-face {
+    font-family: 'Custom Font';
+    src: url('/fonts/custom.woff2') format('woff2');
+    font-display: swap; /* Fallback font displays immediately, custom loads in background */
+}
+
+/* Reduce FOUT (Flash of Unstyled Text) */
+body {
+    font-display: swap;
+}
+
+/* Optimize heading font loading */
+h1, h2, h3, h4, h5, h6 {
+    font-display: optional;
+}

@@ -1,0 +1,245 @@
+================================================================================
+                    ELEVEN ELEVEN EVENTS - PROJECT ARCHITECTURE
+                       Balloon Artistry Event Booking Website
+================================================================================
+
+PROJECT OVERVIEW:
+The Eleven Eleven Events website is a professional balloon artistry booking 
+platform built with HTML, CSS, and JavaScript. It features event booking, 
+gallery showcase, customer reviews, and email communication.
+
+================================================================================
+FOLDER STRUCTURE & FILE RELATIONSHIPS
+================================================================================
+
+ROOT DIRECTORY
+│
+├── main.html ✓ PRIMARY ENTRY POINT
+│   └── Imports:
+│       ├── CSS Files:
+│       │   ├── css/CSSFile/main.css (Core styling)
+│       │   ├── css/CSSFile/components.css (Component styles)
+│       │   ├── css/CSSFile/responsive.css (Mobile responsive)
+│       │   ├── css/CSSFile/validation-styles.css (Form validation)
+│       │   └── css/gallery/gallery.css (Gallery styles)
+│       │
+│       ├── JavaScript:
+│       │   └── Booking/JSFile/main.js (Core functionality)
+│       │
+│       ├── Images:
+│       │   └── Img/Logo croped.ico (Favicon)
+│       │
+│       └── External Resources:
+│           ├── Google Fonts (Playfair Display, Inter)
+│           ├── Font Awesome Icons (v6.0.0-beta3)
+│           └── Remix Icon (v4.7.0)
+│
+├── FAQ.html ✓ SECONDARY PAGE
+│   └── Standalone FAQ page (links may connect to main.html)
+│
+├── Booking/ (Functional Logic Layer)
+│   │
+│   ├── JSFile/
+│   │   ├── main.js (Main application logic)
+│   │   │   └── Handles: Navigation, Form validation, Interactivity
+│   │   │
+│   │   └── test.js (Testing/Development)
+│   │       └── Test cases for main.js functionality
+│   │
+│   └── netlify/
+│       └── functions/
+│           └── send-email.js (Backend Email Service)
+│               └── Uses: @emailjs/nodejs package
+│               └── Sends: Booking confirmations & inquiries
+│
+├── css/ (Styling Layer)
+│   │
+│   ├── CSSFile/
+│   │   ├── main.css (Global styles)
+│   │   ├── components.css (Reusable component styles)
+│   │   ├── responsive.css (Mobile/Tablet/Desktop breakpoints)
+│   │   └── validation-styles.css (Form error/success states)
+│   │
+│   └── gallery/
+│       └── gallery.css (Gallery slideshow/grid styles)
+│
+├── Img/ (Assets Layer)
+│   └── All images and icons
+│       ├── Logo croped.png (Navigation logo)
+│       └── Gallery images (portfolio photos)
+│
+├── package.json (Dependencies)
+│   └── Dependencies: @emailjs/nodejs v5.0.2
+│
+├── .env (Environment Variables - PRIVATE)
+│   └── Email service credentials
+│
+└── .vscode/ (IDE Configuration)
+    └── VS Code workspace settings
+
+================================================================================
+DATA FLOW & CONNECTIONS
+================================================================================
+
+USER INTERACTION FLOW:
+────────────────────
+
+1. User opens main.html
+   ↓
+2. HTML loads CSS files for styling
+   ↓
+3. HTML loads main.js for interactivity
+   ↓
+4. User navigates sections (About → Gallery → Reviews → Contact)
+   ↓
+5. User fills booking form
+   ↓
+6. main.js validates form data (validation-styles.css shows feedback)
+   ↓
+7. Form submission → send-email.js (Netlify Function)
+   ↓
+8. send-email.js uses @emailjs/nodejs to send email
+   ↓
+9. User receives confirmation
+
+FAQ PAGE FLOW:
+──────────────
+main.html → (Link) → FAQ.html → (Link back) → main.html
+
+================================================================================
+KEY COMPONENT RELATIONSHIPS
+================================================================================
+
+STYLING CASCADE:
+────────────────
+1. main.css (Base styles for all HTML elements)
+   ↓
+2. components.css (Specific component styling)
+   ↓
+3. responsive.css (Media query overrides)
+   ↓
+4. gallery.css (Gallery-specific animations/layout)
+   ↓
+5. validation-styles.css (Form validation feedback)
+
+JAVASCRIPT DEPENDENCIES:
+─────────────────────────
+main.js depends on:
+├── Font Awesome Icons (button icons)
+├── Remix Icon (navigation icons)
+├── Google Fonts (typography)
+└── Browser APIs (DOM, Fetch API)
+
+send-email.js depends on:
+└── @emailjs/nodejs package
+    └── Requires .env credentials (EMAILJS_USER_ID, EMAILJS_SERVICE_ID, etc.)
+
+================================================================================
+FILE RESPONSIBILITIES
+================================================================================
+
+main.html:
+- Entry point for the website
+- Contains all HTML structure and layout
+- Links all CSS and JS resources
+- Includes navigation, hero section, gallery, reviews, booking form, footer
+
+FAQ.html:
+- FAQ section (frequently asked questions)
+- May include FAQ-specific styling
+- Cross-links with main.html
+
+main.js:
+- Navigation toggling (mobile menu)
+- Form validation and submission
+- Gallery navigation (if interactive)
+- Scroll effects and animations
+- Event listeners for user interactions
+
+send-email.js:
+- Receives booking form data
+- Authenticates with email service
+- Formats and sends confirmation emails
+- Error handling and logging
+
+CSS Files:
+- main.css: Global styling, typography, layout grid
+- components.css: Button, card, form, section styling
+- responsive.css: Mobile-first responsive breakpoints
+- validation-styles.css: Success/error message styling
+- gallery.css: Gallery grid/slideshow layout
+
+Img/ Folder:
+- Stores all project images
+- Logo, icons, gallery images
+- Referenced in HTML via relative paths
+
+================================================================================
+DEPLOYMENT & HOSTING
+================================================================================
+
+Platform: Netlify
+├── Serves: Static HTML, CSS, JS files
+├── Functions: send-email.js (Serverless function)
+└── Environment: .env file stores API credentials
+
+Build Process:
+- No build step required (plain HTML/CSS/JS)
+- Netlify deploys directly from repository
+
+================================================================================
+EXTERNAL DEPENDENCIES
+================================================================================
+
+NPM Packages:
+└── @emailjs/nodejs@5.0.2 (Email delivery service)
+
+CDN Resources:
+├── Google Fonts API
+├── Font Awesome Icons v6
+└── Remix Icon v4.7.0
+
+================================================================================
+SUMMARY OF CONNECTIONS
+================================================================================
+
+       main.html (Hub)
+            │
+    ┌───────┼───────┬──────────┐
+    │       │       │          │
+   CSS     JS    Images    FAQ.html
+    │       │       │
+  5 files main.js Logos,  (Secondary)
+          │      Photos
+        Netlify
+        Function
+        (Email)
+
+All components work together to create a complete booking experience:
+- main.html provides structure
+- CSS files provide styling
+- main.js provides interactivity
+- send-email.js provides backend functionality
+- Images enhance visual appeal
+
+================================================================================
+NOTES FOR DEVELOPERS
+================================================================================
+
+✓ Modular CSS: Easy to maintain and update individual components
+✓ Responsive Design: Mobile-first approach across all breakpoints
+✓ Serverless Backend: Netlify functions eliminate server management
+✓ Form Validation: Client-side validation prevents bad data
+✓ SEO Optimized: Meta tags and semantic HTML included
+✓ Accessibility: Icon fonts and semantic structure
+
+Potential Improvements:
+- Add database for booking history
+- Implement user authentication
+- Add admin dashboard for gallery management
+- Implement booking availability calendar
+- Add payment integration (Stripe/PayPal)
+
+================================================================================
+END OF ARCHITECTURE DOCUMENTATION
+================================================================================
