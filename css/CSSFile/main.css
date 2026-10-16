@@ -67,6 +67,10 @@
     box-sizing: border-box;
 }
 
+.section-title, .about-content, .gallery-item, .review-card, .contact-form, .contact-info {
+    opacity: 0;
+}
+
 html {
     scroll-behavior: smooth;
 }
